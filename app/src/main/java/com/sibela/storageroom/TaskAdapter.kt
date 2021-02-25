@@ -50,8 +50,8 @@ class TaskAdapter(
         fun bind(task: Task) {
             taskName.text = task.name
 
-            deleteButton.setOnClickListener { callback.onEditClicked(task) }
-            editButton.setOnClickListener { callback.onDeleteClicked(task) }
+            deleteButton.setOnClickListener { callback.onDeleteClicked(task) }
+            editButton.setOnClickListener { callback.onEditClicked(task) }
         }
     }
 
