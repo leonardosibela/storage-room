@@ -4,16 +4,19 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), TaskAdapter.Callback {
 
     private var selectedTask: Task? = null
     private lateinit var adapter: TaskAdapter
+    private lateinit var taskDao: TaskDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setupTaskDatabase()
         setupRecyclerView()
         saveButton.setOnClickListener { onSaveClicked() }
         editButton.setOnClickListener { onEditClicked() }
@@ -26,8 +29,19 @@ class MainActivity : AppCompatActivity(), TaskAdapter.Callback {
         this.selectedTask = task
     }
 
+    private fun setupTaskDatabase() {
+        taskDao = Room
+            .databaseBuilder(this, TaskDatabase::class.java, TaskDatabase.DATABASE_NAME)
+            .fallbackToDestructiveMigration()
+            .allowMainThreadQueries()
+            .build().taskDao()
+    }
+
     private fun setupRecyclerView() {
         adapter = TaskAdapter(callback = this)
+        val tasks = arrayListOf<Task>()
+        tasks.addAll(taskDao.getAll())
+        adapter.setTaskArray(tasks)
         taskRecycler.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@MainActivity)
@@ -47,18 +61,24 @@ class MainActivity : AppCompatActivity(), TaskAdapter.Callback {
     }
 
     override fun onDeleteClicked(task: Task) {
-
+        taskDao.delete(task)
+        val taskArray = arrayListOf<Task>()
+        val tasks = taskDao.getAll()
+        taskArray.addAll(tasks)
+        adapter.setTaskArray(taskArray)
     }
 
     private fun saveTask(task: Task) {
-
+        taskDao.insert(task)
+        val tasks = arrayListOf<Task>()
+        tasks.addAll(taskDao.getAll())
+        adapter.setTaskArray(tasks)
     }
 
     fun editTask(task: Task) {
-
-    }
-
-    fun setTasks(tasks: ArrayList<Task>) {
+        taskDao.update(task)
+        val tasks = arrayListOf<Task>()
+        tasks.addAll(taskDao.getAll())
         adapter.setTaskArray(tasks)
     }
 }
