@@ -1,6 +1,8 @@
 package com.sibela.storageroom
 
 class Task(
-    val id: String = "",
-    val name: String
+
+    var id: Int = 0,
+
+    var name: String
 )
