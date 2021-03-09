@@ -23,10 +23,21 @@ class MainActivity : AppCompatActivity(), TaskAdapter.Callback {
     }
 
     override fun onEditClicked(task: Task) {
-        editButton.visibility = View.VISIBLE
-        saveButton.visibility = View.INVISIBLE
+        displayEditMode()
         taskInput.setText(task.name)
         this.selectedTask = task
+    }
+
+    private fun displayEditMode() {
+        editButton.visibility = View.VISIBLE
+        saveButton.visibility = View.INVISIBLE
+        taskInput.requestFocus()
+    }
+
+    private fun displaySaveMode() {
+        editButton.visibility = View.INVISIBLE
+        saveButton.visibility = View.VISIBLE
+        taskInput.requestFocus()
     }
 
     private fun setupTaskDatabase() {
@@ -58,6 +69,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.Callback {
         val editedTask = Task(selectedTask!!.id, taskInput.text.toString())
         editTask(editedTask)
         selectedTask = null
+        displaySaveMode()
     }
 
     override fun onDeleteClicked(task: Task) {
@@ -73,12 +85,14 @@ class MainActivity : AppCompatActivity(), TaskAdapter.Callback {
         val tasks = arrayListOf<Task>()
         tasks.addAll(taskDao.getAll())
         adapter.setTaskArray(tasks)
+        taskInput.setText("")
     }
 
-    fun editTask(task: Task) {
+    private fun editTask(task: Task) {
         taskDao.update(task)
         val tasks = arrayListOf<Task>()
         tasks.addAll(taskDao.getAll())
         adapter.setTaskArray(tasks)
+        taskInput.setText("")
     }
 }
